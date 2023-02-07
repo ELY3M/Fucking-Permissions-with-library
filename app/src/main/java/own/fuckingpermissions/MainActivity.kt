@@ -29,15 +29,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
-import com.intentfilter.androidpermissions.PermissionManager
-import com.intentfilter.androidpermissions.models.DeniedPermissions
+import com.markodevcic.peko.PermissionRequester
+import com.markodevcic.peko.PermissionResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import own.fuckingpermissions.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.lang.System.exit
 import java.nio.charset.Charset
-import java.util.Collections.singleton
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
@@ -61,83 +63,34 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
 
-        //asking for stupid fucking permissions.....
-
-
-
-        //showFileWritePermsDialogue()
-
-
 /*
-        //FUCK YOU GOOGLE!!!!!!  They kept changing their code to "secure" the storage   FUCK YOU
-        //my ass will be at your new HQ offices and chewing you out for what you did to me.  I fucking hate companies that censor.
-        //I will make you pay my fucking income!!!!  FUCK YOU!!!!
-        //Google company Execs need metal pipes in their asses for breaking their promoise not to censor!!!!!
-        //file access permission functions moved to WX.kt
-        if(SDK_INT >= 30) {
-            Log.d("fuck-you", "SDK is 30 or above")
-            if(!Environment.isExternalStorageManager()) {
-                Log.d("fuck-you", "Trying to ask for access to sd card")
-                Toast.makeText(applicationContext, "This app need access to your phone memory or SD Card to make files and write files (/wX/ on your phone memory or sd card)\nThe all file access settings will open. Make sure to toggle it on to enable all files access for this app to function fully.\n You need to restart the app after you enabled the all files access for this app in the settings.\n", Toast.LENGTH_LONG).show()
-                val intent = Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                startActivity(intent)
-                //force restart :/
-                exitProcess(0)
-            } else {
-                runme()
-            }
-        } else {
-            runme()
-        }
 
+        showLocationPermsDialogue()
+        PermissionRequester.initialize(applicationContext)
+        val requester = PermissionRequester.instance()
+        val granted: Boolean = requester.areGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (granted) {
+        showBGLocationPermsDialogue()
+        }
 */
 
 
-        //location is working....
-        //showLocationPermsDialogue()
-        //showBGLocationPermsDialogue()
 
 
-
-
-        val locationPermission = PermissionManager.getInstance(this)
-        locationPermission.checkPermissions(singleton(Manifest.permission.ACCESS_FINE_LOCATION), object : PermissionManager.PermissionRequestListener {
-            override fun onPermissionGranted() {
-                Log.d("fuck-you", "Location Permissions is good :)")
-            }
-
-            override fun onPermissionDenied(deniedPermissions: DeniedPermissions) {
-                Log.d("fuck-you", "Location Permissions Denied")
-            }
-        })
-
-
-
-        //background location permission
-        if(SDK_INT >= 29) {
-            Log.d("wx-elys", "BG Location Permissions is good!")
-            val bgLocationPermission = PermissionManager.getInstance(this)
-            bgLocationPermission.checkPermissions(singleton(Manifest.permission.ACCESS_BACKGROUND_LOCATION), object : PermissionManager.PermissionRequestListener {
-                override fun onPermissionGranted() {
-                    Log.d("fuck-you", "Great!!! Got Background Location Perms!. :)")
+        //asking for stupid fucking permissions.....
+        //Peko Library
+        PermissionRequester.initialize(applicationContext)
+        val requester = PermissionRequester.instance()
+        CoroutineScope(Dispatchers.Main).launch {
+            requester.request(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ).collect { p ->
+                when (p) {
+                    is PermissionResult.Granted -> showBGLocationPermsDialogue()
+                    else -> {}
                 }
-
-                override fun onPermissionDenied(deniedPermissions: DeniedPermissions) {
-                    Log.d("fuck-you", "BG Location Permission Denied")
-
-                }
-            })
+            }
         }
-
-
-
-
-
-
-
-
-
-
 
         runme()
 
@@ -187,6 +140,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showBGLocationPermsDialogue() {
         if(SDK_INT >= 29) {
+            Log.i("fuck-you", "more than 29 SDK")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.i("fuck-you", "Background Location Perms are already granted :)")
         } else {
@@ -195,19 +149,8 @@ class MainActivity : AppCompatActivity() {
                 Log.i("fuck-you", "Asking for Background Location Perms")
             }
         }
-        }
     }
-
-    private fun showFileWritePermsDialogue() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.i("fuck-you", "Storage Perms are already granted :)")
-        } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), StoragePerms)
-                Log.i("fuck-you", "Asking for Storage Perms")
-            }
-        }
-    }
+}
 
 
 
