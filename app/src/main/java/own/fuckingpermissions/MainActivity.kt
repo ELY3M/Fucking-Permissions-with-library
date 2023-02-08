@@ -48,9 +48,10 @@ class MainActivity : AppCompatActivity() {
 
     val FilesPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FuckYou/"
     val PalFilesPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FuckYou/pal/"
-    val allPerms = 1
+
+
     val LocationPerms = 5001
-    val BGLocationPerms = 5002
+    val BackgroundLocationPerms = 5002
     val StoragePerms = 5003
 
     private lateinit var binding: ActivityMainBinding
@@ -145,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             Log.i("fuck-you", "Background Location Perms are already granted :)")
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), BGLocationPerms)
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), BackgroundLocationPerms)
                 Log.i("fuck-you", "Asking for Background Location Perms")
             }
         }
